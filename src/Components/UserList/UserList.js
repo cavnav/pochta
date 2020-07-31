@@ -9,6 +9,11 @@ import TableRow from '@material-ui/core/TableRow';
 
 import Paper from '@material-ui/core/Paper';
 import { UserRow } from '../';
+import { serverAPI } from "../../serverAPI";
+
+const initState = {
+  users: [],
+};
 
 const useStyles = makeStyles({
   table: {
@@ -17,20 +22,24 @@ const useStyles = makeStyles({
   },
 });
 
-function createData(userName, userRoles, userId = Math.floor(Math.random() * 3 + 1)) {
-  return { userId, userName, userRoles };
-}
-
-const users = [
-  createData('Frozen yoghurt', 'admin, user, guest'),
-  createData('Ice cream sandwich', 'admin, guest'),
-  createData('Eclair', 'guest'),
-  createData('Cupcake', 'admin'),
-  createData('Gingerbread', 'user'),
-];
-
 export function UserList() {
   const classes = useStyles();
+
+  const [state, setState] = React.useReducer(tempReducer, initState);
+
+  React.useEffect(() => {
+    try {
+      fetch();
+
+      async function fetch() {
+        const users = await serverAPI.getUsers();
+        setState({ users });
+      }
+    }
+    catch (e) {
+      console.log(serverAPI.getUsers.name, e);
+    }
+  }, []);
 
   return (
     <TableContainer component={Paper}>
@@ -42,11 +51,18 @@ export function UserList() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {users.map((user, key = user.userId) => (
+          {state.users.map((user, key = user.userId) => (
             <UserRow key={key} data={user} />
           ))}
         </TableBody>
       </Table>
     </TableContainer>
   );
+}
+
+function tempReducer(prevState, newState = {}) {
+  return {
+    ...prevState,
+    ...newState,
+  };
 }
