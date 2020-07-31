@@ -33,6 +33,17 @@ export function UserList() {
   const classes = useStyles();
   const [state, setState] = useImmer(initState);
 
+  const onMouseDown = useCallback((e) => {
+    const target = e.target;
+  }, []);
+
+  React.useEffect(() => {
+    const eMouseDown = 'mousedown';
+    document.addEventListener(eMouseDown, onMouseDown);
+
+    return () => document.removeEventListener(eMouseDown, onMouseDown);
+  }, []);
+
   const onSubmitUserForm = useCallback(({ editedUser }) => setState((draft) => {
       draft.isUserForm = false;
       if (draft.addedUser) {
@@ -64,7 +75,7 @@ export function UserList() {
         const newUser = await serverAPI.addUser();
         setState((draft) => {
           draft.addedUser = newUser;
-          draft.editedUser = null;
+          draft.editedUser = {};
           draft.isUserForm = true;
         });
       }
@@ -102,7 +113,7 @@ export function UserList() {
           </TableHead>
           <TableBody>
             {state.users.map((user, key = user.userId) => (
-              <UserRow key={key} data={user} />
+              <UserRow key={key} user={user} />
             ))}
           </TableBody>
         </Table>

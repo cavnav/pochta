@@ -6,22 +6,18 @@ import { UserRowActions } from '../';
 import { UserRoleList } from '../';
 
 export function UserRow({
-  data: {
-    userName,
-    userId,
-    userRoles,
-  },
+  user,
 }) {
     return (
       <TableRow>
           <TableCell component="th" scope="row">
-            {userName}
+            {user.userName}
           </TableCell>
           <TableCell align="right">
-            <UserRoleList data={userRoles} />
+            <UserRoleList roles={user.userRoles} />
           </TableCell>
           <TableCell>
-            <UserRowActions />
+            <UserRowActions data-userId={user.id}/>
           </TableCell>
       </TableRow>
     );

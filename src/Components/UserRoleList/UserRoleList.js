@@ -1,7 +1,7 @@
 import React from 'react';
 
 export function UserRoleList({
-  data,
+  roles,
 }) {
     return (
       <div>roles</div>

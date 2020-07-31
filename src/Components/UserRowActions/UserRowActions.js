@@ -16,7 +16,7 @@ export function UserRowActions() {
 
   return (
     <div>
-      <DeleteOutlineIcon />
+      <DeleteOutlineIcon/>
       <EditIcon />
     </div>
   );
