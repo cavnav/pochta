@@ -4,6 +4,6 @@ export function UserRoleList({
   data,
 }) {
     return (
-      <div>{data}</div>
+      <div>{data.join(',')}</div>
     );
 }
