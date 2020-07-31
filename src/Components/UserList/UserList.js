@@ -19,11 +19,13 @@ import { serverAPI } from "../../serverAPI";
 const initState = {
   users: [],
   isUserForm: false,
+  addedUser: {},
+  editedUser: {},
 };
 
 const useStyles = makeStyles({
   table: {
-    minWidth: 650,
+    maxWidth: 650,
   },
 });
 
@@ -31,7 +33,29 @@ export function UserList() {
   const classes = useStyles();
   const [state, setState] = useImmer(initState);
 
-  const onClose = useCallback(() => setState((draft) => { draft.isUserForm = false }), []);
+  const onSubmitUserForm = useCallback(({ editedUser }) => setState((draft) => {
+      draft.isUserForm = false;
+      if (draft.addedUser) {
+        draft.users.push(editedUser);
+        draft.addedUser = {};
+      }
+
+      if (draft.editedUser) {
+        Object.assign(draft.editedUser, editedUser);
+        draft.editedUser = {};
+      }
+  }), []);
+
+  const getUser = useCallback(() => {
+    if (state.editedUser.id) return state.addedUser;
+    if (state.addedUser.id) return state.addedUser;
+  }, [state.editedUser, state.addedUser]);
+
+  const onClose = useCallback(() => setState((draft) => {
+    draft.isUserForm = false;
+    draft.editedUser = {};
+    draft.addedUser = {};
+  }), []);
   const onAddUser = useCallback(() => {
     try {
       fetchData();
@@ -39,7 +63,8 @@ export function UserList() {
       async function fetchData() {
         const newUser = await serverAPI.addUser();
         setState((draft) => {
-          draft.users.push(newUser);
+          draft.addedUser = newUser;
+          draft.editedUser = null;
           draft.isUserForm = true;
         });
       }
@@ -82,7 +107,12 @@ export function UserList() {
           </TableBody>
         </Table>
       </TableContainer>
-      <UserForm isOpen={state.isUserForm} onClose={onClose}/>
+      <UserForm
+        user={getUser}
+        isOpen={state.isUserForm}
+        onClose={onClose}
+        onSubmit={onSubmitUserForm}
+      />
     </>
   );
 }

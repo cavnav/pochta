@@ -1,6 +1,13 @@
-import React from 'react';
+import React, {useCallback} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import Modal from '@material-ui/core/Modal';
+import { useImmer } from 'use-immer';
+import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -13,24 +20,59 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const initState = {
+  editedUser: {},
+};
+
 export function UserForm({
+  user,
   isOpen,
   onClose,
+  onSubmit,
 }) {
+  debugger;
   const classes = useStyles();
+  const [state, setState] = useImmer(initState);
+  const onSubmitWrap = useCallback(() => {
+    onSubmit({ editedUser: state.editedUser });
+  });
+  const onChangeUserName = useCallback((e) => {
+    const userName = e.target.value;
+    setState((draft) => {
+      draft.editedUser.userName = userName;
+    });
+  }, [state.editedUser]);
+
+  React.useEffect(() => {
+    setState((draft) => {
+      draft.editedUser = user;
+    })
+  }, [user]);
 
   return (
     <div>
-      <Modal
-        open={isOpen}
-        onClose={onClose}
-        aria-labelledby="simple-modal-title"
-        aria-describedby="simple-modal-description"
-      >
-        <div className={classes.paper}>
-          <h2 id="simple-modal-title">Text in a modal</h2>
-        </div>
-      </Modal>
+      <Dialog open={isOpen} onClose={onClose} aria-labelledby="form-dialog-title">
+        <DialogTitle id="form-dialog-title">Редактирование</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            id="userName"
+            label="ФИО"
+            type="text"
+            fullWidth
+            value={state.editedUser.userName}
+            onChange={onChangeUserName}
+          />
+          <br/>
+
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={onSubmitWrap} color="primary">
+            Сохранить
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }
